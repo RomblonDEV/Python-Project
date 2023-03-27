@@ -1,0 +1,166 @@
+import random
+import time
+
+# Initial Steps to invite in the game:
+print("\nWelcome to Hangman\n")
+name = input("Enter your name: ")
+print("Hello " + name + "! Best of Luck!")
+time.sleep(2)
+print("The game is about to start!\n Let's play Hangman!")
+time.sleep(3)
+
+hang = ["""
+H A N G M A N 
+
+   +---+
+   |   |
+       |
+       |
+       |
+       |
+=========""", """
+H A N G M A N
+
+  +---+
+  |   |
+  O   |
+      |
+      |
+      |
+=========""", """
+H A N G M A N 
+
+  +---+
+  |   |
+  O   |
+  |   |
+      |
+      |
+=========""", """
+H A N G M A N
+
+  +---+
+  |   |
+  O   |
+ /|   |
+      |
+      |
+=========""", """
+H A N G M A N
+
+  +---+
+  |   |
+  O   |
+ /|\  |
+      |
+      |
+=========""", """
+H A N G M A N 
+
+  +---+
+  |   |
+  O   |
+ /|\  |
+ /    |
+      |
+=========""", """
+H A N G M A N 
+
+  +---+
+  |   |
+  O   |
+ /|\  |
+ / \  |
+      |
+========="""]
+
+
+def get_random_word():
+    words = ['apple', 'banana', 'mango', 'strawberry', 'orange', 'grape', 'pineapple', 'apricot',
+             'lemon', 'coconut', 'watermelon', 'cherry', 'papaya', 'berry', 'peach', 'lychee', 'muskmelon'] # random word in list format
+
+    word = random.choice(words)# selecting word from the variable words
+    return word # it will be returned to get_random_word
+
+
+def board_display(hang, missedLetters, correctLetters, secretWord):
+    print(hang[len(missedLetters)])# printing hangman based on the wrong characters
+    print()
+
+    print('Missed Letters:', end=' ')
+    for letter in missedLetters:
+        print(letter, end=' ')
+    print("\n")
+
+    blanks = '_' * len(secretWord)
+
+    for i in range(len(secretWord)):  # replace blanks with correctly guessed letters
+        if secretWord[i] in correctLetters:
+            blanks = blanks[:i] + secretWord[i] + blanks[i+1:]
+
+    for letter in blanks:  # show the secret word with spaces in between each letter
+        print(letter, end=' ')
+    print("\n")
+
+
+def get_guess(already_guessed):
+    while True:
+        guess = input('Guess a letter: ')
+        guess = guess.lower()
+        if len(guess) != 1: #checking if  user put more than one letter
+            print('Please enter a single letter.')
+            time.sleep(30)
+        elif guess in already_guessed: # checking if user guesed the letter
+            print('You have already guessed that letter. Choose again.')
+        elif guess not in 'abcdefghijklmnopqrstuvwxyz': # checking if user didn't put the letter
+            print('Please enter a LETTER.')
+        else:
+            return guess
+
+
+def play_again():
+    play_again =  input("\nDo you want to play again? ").lower().startswith('y')
+    time.sleep(30)
+    return play_again
+
+
+missedLetters = ''
+correctLetters = ''
+secretWord = get_random_word()
+game_done = False
+
+while True:
+    board_display(hang, missedLetters, correctLetters, secretWord)
+
+    guess = get_guess(missedLetters + correctLetters)
+
+    if guess in secretWord:
+        correctLetters = correctLetters + guess
+
+        foundAllLetters = True
+        for i in range(len(secretWord)):
+            if secretWord[i] not in correctLetters:
+                foundAllLetters = False
+                break
+        if foundAllLetters:
+            print('\nYes! The secret word is "' +
+                  secretWord + '"! You have won!')
+            game_done = True
+    else:
+        missedLetters = missedLetters + guess
+
+        if len(missedLetters) == len(hang) - 1:
+            board_display(hang, missedLetters,
+                         correctLetters, secretWord)
+            print('You have run out of guesses!\nAfter ' + str(len(missedLetters)) + ' missed guesses and ' +
+                  str(len(correctLetters)) + ' correct guesses, the word was "' + secretWord + '"')
+            game_done = True
+
+    if game_done:
+        if play_again():
+            missedLetters = ''
+            correctLetters = ''
+            game_done = False
+            secretWord = get_random_word()
+        else:
+            break
